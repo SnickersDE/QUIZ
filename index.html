@@ -171,11 +171,13 @@
         <label><input type="radio" name="q7" value="c"> Persönliche Neigung und Eignung</label>
       </div>
 
-      <button type="button" onclick="calculateScore()">Absenden</button>
+           <button type="button" onclick="calculateScore()">Absenden</button>
       <div id="result"></div>
     </form>
   </div>
 
+  <!-- Konfetti Bibliothek -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <script>
     function calculateScore() {
       const correctAnswers = {
@@ -197,90 +199,54 @@
       }
 
       const percent = Math.round((score / total) * 100);
-      document.getElementById('result').innerHTML =
-        `Du hast <strong>${score}</strong> von <strong>${total}</strong> Fragen richtig (${percent}%) 🎉`;
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = `Du hast <strong>${score}</strong> von <strong>${total}</strong> Fragen richtig (${percent}%)`;
+
+      // ✅ Wenn bestanden: Glückwunsch + Konfetti
+      if (percent >= 70) {
+        const congrats = document.createElement("div");
+        congrats.innerText = "🎉 Super gemacht! Du hast bestanden! 🎉";
+        Object.assign(congrats.style, {
+          position: "fixed",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          background: "linear-gradient(90deg, #fceabb, #f8b500)",
+          color: "#333",
+          padding: "20px 40px",
+          borderRadius: "20px",
+          fontSize: "1.5rem",
+          fontWeight: "bold",
+          textAlign: "center",
+          boxShadow: "0 0 20px rgba(0,0,0,0.3)",
+          zIndex: "9999",
+          opacity: "0",
+          transition: "opacity 0.6s ease"
+        });
+
+        document.body.appendChild(congrats);
+        setTimeout(() => (congrats.style.opacity = "1"), 100);
+        setTimeout(() => {
+          congrats.style.opacity = "0";
+          setTimeout(() => congrats.remove(), 1000);
+        }, 4000);
+
+        // 🎊 Konfetti starten
+        const duration = 3 * 1000;
+        const end = Date.now() + duration;
+        (function frame() {
+          confetti({
+            particleCount: 8,
+            spread: 70,
+            origin: { y: 0.6 }
+          });
+          if (Date.now() < end) requestAnimationFrame(frame);
+        })();
+      }
     }
   </script>
-</body>
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-<script>
-  const form = document.getElementById("quizForm");
-  const resultDiv = document.getElementById("result");
-
-  // ✨ Funktion für animierte Glückwunsch-Nachricht
-  function showCongrats() {
-    const congrats = document.createElement("div");
-    congrats.innerText = "🎉 Super gemacht! Du hast bestanden! 🎉";
-    congrats.style.position = "fixed";
-    congrats.style.top = "50%";
-    congrats.style.left = "50%";
-    congrats.style.transform = "translate(-50%, -50%)";
-    congrats.style.background = "linear-gradient(90deg, #f9d976, #f39f86)";
-    congrats.style.color = "#333";
-    congrats.style.padding = "20px 40px";
-    congrats.style.borderRadius = "20px";
-    congrats.style.fontSize = "1.5rem";
-    congrats.style.fontWeight = "bold";
-    congrats.style.textAlign = "center";
-    congrats.style.boxShadow = "0 0 20px rgba(0,0,0,0.3)";
-    congrats.style.zIndex = "9999";
-    congrats.style.opacity = "0";
-    congrats.style.transition = "opacity 0.6s ease";
-
-    document.body.appendChild(congrats);
-
-    // sanft einblenden
-    setTimeout(() => (congrats.style.opacity = "1"), 100);
-
-    // nach 4 Sekunden wieder ausblenden
-    setTimeout(() => {
-      congrats.style.opacity = "0";
-      setTimeout(() => congrats.remove(), 1000);
-    }, 4000);
-  }
-
-  form.addEventListener("submit", function (event) {
-    event.preventDefault();
-
-    const answers = [
-      "Erwerbsfunktion",
-      "Ruf Gottes",
-      "Art. 12",
-      "Eignungsperspektive",
-      "Qualifikationsanforderungen sind gering",
-      "Die Passung zwischen Kompetenz des Einzelnen und den Qualifikationsanforderungen des Arbeitsmarktes"
-    ];
-
-    const questions = document.querySelectorAll("input[type='radio']:checked");
-    let score = 0;
-
-    questions.forEach((q, i) => {
-      if (q.value === answers[i]) score++;
-    });
-
-    const percent = (score / answers.length) * 100;
-    resultDiv.innerText = `Ergebnis: ${percent.toFixed(0)}% richtig`;
-
-    if (percent >= 70) {
-      showCongrats(); // 🎉 Nachricht einblenden
-
-      // Konfetti-Effekt
-      const duration = 3 * 1000;
-      const end = Date.now() + duration;
-
-      (function frame() {
-        confetti({
-          particleCount: 7,
-          spread: 70,
-          origin: { y: 0.6 }
-        });
-        if (Date.now() < end) requestAnimationFrame(frame);
-      })();
-    }
-  });
-</script>
-
 </html>
+
 
 
 
