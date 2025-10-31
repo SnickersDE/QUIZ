@@ -176,75 +176,107 @@
     </form>
   </div>
 
-  <!-- Konfetti Bibliothek -->
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-  <script>
-    function calculateScore() {
-      const correctAnswers = {
-        q1: "b",  // Erwerbsfunktion
-        q2: "a",  // Ruf Gottes
-        q3: "b",  // Artikel 12
-        q4: "c",  // Eignungsperspektive
-        q5: "c",  // Qualifikationsanforderungen gering
-        q6: "c",  // Passung Kompetenz/Arbeitsmarkt
-        q7: "b"   // Versorgung durch Arbeitseinkommen
-      };
+ <!-- Konfetti Bibliothek -->
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script>
+  function calculateScore() {
+    const correctAnswers = {
+      q1: "b",
+      q2: "a",
+      q3: "b",
+      q4: "c",
+      q5: "c",
+      q6: "c",
+      q7: "b"
+    };
 
-      let score = 0;
-      const total = Object.keys(correctAnswers).length;
+    let score = 0;
+    const total = Object.keys(correctAnswers).length;
 
-      for (let q in correctAnswers) {
-        const answer = document.querySelector(`input[name="${q}"]:checked`);
-        if (answer && answer.value === correctAnswers[q]) score++;
-      }
-
-      const percent = Math.round((score / total) * 100);
-      const resultDiv = document.getElementById('result');
-      resultDiv.innerHTML = `Du hast <strong>${score}</strong> von <strong>${total}</strong> Fragen richtig (${percent}%)`;
-
-      // ✅ Wenn bestanden: Glückwunsch + Konfetti
-      if (percent >= 70) {
-        const congrats = document.createElement("div");
-        congrats.innerText = "🎉 Super gemacht! Du hast bestanden! 🎉";
-        Object.assign(congrats.style, {
-          position: "fixed",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          background: "linear-gradient(90deg, #fceabb, #f8b500)",
-          color: "#333",
-          padding: "20px 40px",
-          borderRadius: "20px",
-          fontSize: "1.5rem",
-          fontWeight: "bold",
-          textAlign: "center",
-          boxShadow: "0 0 20px rgba(0,0,0,0.3)",
-          zIndex: "9999",
-          opacity: "0",
-          transition: "opacity 0.6s ease"
-        });
-
-        document.body.appendChild(congrats);
-        setTimeout(() => (congrats.style.opacity = "1"), 100);
-        setTimeout(() => {
-          congrats.style.opacity = "0";
-          setTimeout(() => congrats.remove(), 1000);
-        }, 4000);
-
-        // 🎊 Konfetti starten
-        const duration = 3 * 1000;
-        const end = Date.now() + duration;
-        (function frame() {
-          confetti({
-            particleCount: 8,
-            spread: 70,
-            origin: { y: 0.6 }
-          });
-          if (Date.now() < end) requestAnimationFrame(frame);
-        })();
-      }
+    for (let q in correctAnswers) {
+      const answer = document.querySelector(`input[name="${q}"]:checked`);
+      if (answer && answer.value === correctAnswers[q]) score++;
     }
-  </script>
+
+    const percent = Math.round((score / total) * 100);
+    const resultDiv = document.getElementById('result');
+    resultDiv.innerHTML = `Du hast <strong>${score}</strong> von <strong>${total}</strong> Fragen richtig (${percent}%)`;
+
+    // Alte Overlays entfernen (Konfetti oder Fail-Box)
+    document.querySelectorAll(".overlay-box").forEach(el => el.remove());
+
+    if (percent >= 70) {
+      // ✅ Bestanden
+      const congrats = document.createElement("div");
+      congrats.className = "overlay-box";
+      congrats.innerText = "🎉 Super gemacht! Du hast bestanden! 🎉";
+      Object.assign(congrats.style, {
+        position: "fixed",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        background: "linear-gradient(90deg, #fceabb, #f8b500)",
+        color: "#333",
+        padding: "20px 40px",
+        borderRadius: "20px",
+        fontSize: "1.5rem",
+        fontWeight: "bold",
+        textAlign: "center",
+        boxShadow: "0 0 20px rgba(0,0,0,0.3)",
+        zIndex: "9999",
+        opacity: "0",
+        transition: "opacity 0.6s ease"
+      });
+
+      document.body.appendChild(congrats);
+      setTimeout(() => (congrats.style.opacity = "1"), 100);
+      setTimeout(() => {
+        congrats.style.opacity = "0";
+        setTimeout(() => congrats.remove(), 1000);
+      }, 4000);
+
+      // 🎊 Konfetti
+      const duration = 3 * 1000;
+      const end = Date.now() + duration;
+      (function frame() {
+        confetti({ particleCount: 8, spread: 70, origin: { y: 0.6 } });
+        if (Date.now() < end) requestAnimationFrame(frame);
+      })();
+
+    } else {
+      // ❌ Nicht bestanden
+      const failDiv = document.createElement("div");
+      failDiv.className = "overlay-box";
+      failDiv.innerHTML = `
+        <p style="font-size: 1.4rem; font-weight: bold; color: #b00020;">Leider nicht bestanden 😢</p>
+        <p style="font-size: 1rem;">Versuch's noch einmal – du schaffst das beim nächsten Mal!</p>
+        <img src="sad-dog.jpg" alt="Trauriger Hund">
+             style="max-width: 250px; margin-top: 15px; border-radius: 15px; box-shadow: 0 0 10px rgba(0,0,0,0.2);">
+      `;
+      Object.assign(failDiv.style, {
+        position: "fixed",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        background: "#fff",
+        padding: "25px 35px",
+        borderRadius: "20px",
+        textAlign: "center",
+        boxShadow: "0 0 25px rgba(0,0,0,0.3)",
+        zIndex: "9999",
+        opacity: "0",
+        transition: "opacity 0.6s ease"
+      });
+
+      document.body.appendChild(failDiv);
+      setTimeout(() => (failDiv.style.opacity = "1"), 100);
+      setTimeout(() => {
+        failDiv.style.opacity = "0";
+        setTimeout(() => failDiv.remove(), 1000);
+      }, 5000);
+    }
+  }
+</script>
 </html>
 
 
